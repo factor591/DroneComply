@@ -1,0 +1,123 @@
+<Page
+    x:Class="DroneComply.App.Views.PreFlightPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:DroneComply.Core.Models"
+    mc:Ignorable="d">
+    <Grid Padding="24" ColumnSpacing="24">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="280" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel>
+            <TextBlock Text="Mission Plans" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,12" />
+            <Button Content="Refresh" Command="{Binding LoadCommand}" Margin="0,0,0,12" />
+            <ListView ItemsSource="{Binding MissionPlans}" SelectedItem="{Binding SelectedMission, Mode=TwoWay}" Height="500">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="models:MissionPlan">
+                        <StackPanel Padding="8" Spacing="4">
+                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding PlannedDate, StringFormat='{}{0:g}'}" />
+                            <TextBlock Text="{Binding LaunchLocation}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackPanel>
+
+        <ScrollViewer Grid.Column="1">
+            <StackPanel Spacing="16">
+                <TextBlock Text="Mission Details" FontSize="24" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding StatusMessage}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+
+                <Grid ColumnSpacing="12" RowSpacing="6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Mission:" FontWeight="SemiBold" />
+                    <TextBlock Grid.Column="1" Text="{Binding SelectedMission.Name}" />
+
+                    <TextBlock Grid.Row="1" Text="Planned:" FontWeight="SemiBold" />
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedMission.PlannedDate, StringFormat='{}{0:F}'}" />
+
+                    <TextBlock Grid.Row="2" Text="Pilot:" FontWeight="SemiBold" />
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedMission.PilotId}" />
+
+                    <TextBlock Grid.Row="3" Text="Aircraft:" FontWeight="SemiBold" />
+                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedMission.AircraftId}" />
+                </Grid>
+
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Content="Evaluate Compliance" Command="{Binding EvaluateComplianceCommand}" />
+                    <Button Content="Refresh Weather" Command="{Binding RefreshWeatherCommand}" />
+                    <Button Content="Refresh Airspace" Command="{Binding RefreshAirspaceCommand}" />
+                </StackPanel>
+
+                <Border BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Weather Briefing" FontSize="20" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding SelectedMission.WeatherBriefing.Summary}" TextWrapping="Wrap" />
+                        <ItemsControl ItemsSource="{Binding SelectedMission.WeatherBriefing.Conditions}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="models:WeatherCondition">
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <TextBlock Text="{Binding Location}" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding TemperatureCelsius, StringFormat='Temp {0} C'}" />
+                                        <TextBlock Text="{Binding WindSpeedKnots, StringFormat='Wind {0} kt'}" />
+                                        <TextBlock Text="{Binding VisibilityMiles, StringFormat='Vis {0} mi'}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <Border BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Airspace Advisories" FontSize="20" FontWeight="SemiBold" />
+                        <ListView ItemsSource="{Binding SelectedMission.AirspaceAdvisories}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="models:MissionAirspaceAdvisory">
+                                    <StackPanel Padding="8" Spacing="4">
+                                        <TextBlock Text="{Binding AdvisoryType}" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
+                                        <TextBlock Text="{Binding Severity}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+                </Border>
+
+                <Border BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}" BorderThickness="1" Padding="12" CornerRadius="4">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Compliance" FontSize="20" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding LatestReport.Summary}" TextWrapping="Wrap" />
+                        <ItemsControl ItemsSource="{Binding LatestReport.Violations}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="models:ComplianceViolation">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
+                                        <TextBlock Text="{Binding Recommendation}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

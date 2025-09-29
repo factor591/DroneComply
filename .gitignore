@@ -1,0 +1,45 @@
+# Build outputs
+bin/
+obj/
+**/bin/
+**/obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs
+Logs/
+*.log
+
+# NuGet
+*.nupkg
+packages/
+.nuget/
+
+# Dotnet tooling
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Cache
+.vscode/
+*.db
+*.sqlite
+
+# MSIX
+*.msix
+*.msixupload
+*.msixbundle
+*.appx
+*.appxbundle
+
+# Local config
+appsettings.local.json
+
+# Test results
+TestResults/
+
