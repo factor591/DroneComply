@@ -4,55 +4,47 @@ DroneComply is a WinUI 3 application that helps Part 107 operators stay complian
 
 ## Projects
 
-- src/DroneComply.App – WinUI 3 shell, MVVM view models, navigation, and dependency injection entry point.
-- src/DroneComply.Core – Domain models, enums, interfaces, and business services.
-- src/DroneComply.Data – Entity Framework Core context, configurations, and repository implementations for encrypted SQLite storage.
-- src/DroneComply.External – HTTP abstractions for FAA weather and LAANC integrations.
-- 	ests/DroneComply.Tests – xUnit test project (placeholder).
+- src/DroneComply.App - WinUI 3 shell, MVVM view models, navigation, and dependency injection entry point.
+- src/DroneComply.Core - Domain models, enums, interfaces, and business services.
+- src/DroneComply.Data - Entity Framework Core context, configurations, and repository implementations for encrypted SQLite storage.
+- src/DroneComply.External - HTTP abstractions for FAA weather and LAANC integrations.
+- tests/DroneComply.Tests - xUnit test project (placeholder).
 
 ## Getting Started
 
 1. Install the prerequisites:
    - .NET 8 SDK (winget install Microsoft.DotNet.SDK.8)
+  
    - Windows App SDK 1.5 (winget install Microsoft.WindowsAppSDK)
    - WinUI 3 tooling (dotnet workload install maui-windows or install VS 2022 with the "Windows App SDK C# Templates" workload)
    - Entity Framework Core tools (dotnet tool install --global dotnet-ef)
 
 2. Restore and build the solution:
 
-   `powershell
+   ```powershell
    dotnet restore
    dotnet build
-   `
+   ```
 
-3. Create a local configuration override if you want to store secrets:
+3. Configure secrets via environment variables (they are read at runtime):
+   - `DRONECOMPLY_DB_PASSWORD` for the encrypted SQLite database (optional; omit to run without encryption).
+   - `DRONECOMPLY_ALOFT_API_KEY` for live LAANC advisories.
+   - `DRONECOMPLY_GOOGLE_MAPS_API_KEY` for mapping features.
 
-   `jsonc
-   // src/DroneComply.App/appsettings.local.json
-   {
-     "ConnectionStrings": {
-       "DefaultConnection": "Data Source=DroneComply.db;Password=ReplaceThis"
-     },
-     "ExternalAPIs": {
-       "FAAWeatherAPI": "https://aviationweather.gov/api/data",
-       "AloftAPI": "your-aloft-api-key",
-       "GoogleMapsAPI": "your-google-maps-key"
-     }
-   }
-   `
+   You can add environment-specific overrides in `appsettings.Development.json` or `appsettings.Production.json`, but avoid storing secrets in source-controlled JSON files.
 
 4. Apply migrations when they are added (placeholder):
 
-   `powershell
+   ```powershell
    dotnet ef migrations add InitialCreate --project src/DroneComply.Data --startup-project src/DroneComply.App
    dotnet ef database update --project src/DroneComply.Data --startup-project src/DroneComply.App
-   `
+   ```
 
 5. Run the app:
 
-   `powershell
+   ```powershell
    dotnet run --project src/DroneComply.App
-   `
+   ```
 
 ## Next Steps
 

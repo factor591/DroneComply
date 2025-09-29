@@ -1,3 +1,4 @@
+using System;
 using DroneComply.Core.Interfaces.External;
 using DroneComply.Core.Models;
 using Microsoft.Extensions.Configuration;
@@ -9,18 +10,35 @@ public class AloftAirspaceService : IAirspaceAdvisoryService
 {
     private readonly ILogger<AloftAirspaceService> _logger;
     private readonly string _laancKey;
+    private readonly string _laancKeyVariable;
 
     public AloftAirspaceService(IConfiguration configuration, ILogger<AloftAirspaceService> logger)
     {
         _logger = logger;
-        _laancKey = configuration["ExternalAPIs:AloftAPI"] ?? string.Empty;
+        _laancKeyVariable = configuration["Secrets:ApiKeys:Aloft"] ?? string.Empty;
+
+        if (!string.IsNullOrWhiteSpace(_laancKeyVariable))
+        {
+            _laancKey = Environment.GetEnvironmentVariable(_laancKeyVariable) ?? string.Empty;
+        }
+        else
+        {
+            _laancKey = configuration["ExternalAPIs:AloftAPI"] ?? string.Empty;
+        }
     }
 
     public Task<IReadOnlyList<MissionAirspaceAdvisory>> GetAirspaceAdvisoriesAsync(MissionPlan missionPlan, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(_laancKey))
         {
-            _logger.LogInformation("Aloft API key not configured. Returning offline advisories for mission {MissionPlan}", missionPlan.Id);
+            if (!string.IsNullOrWhiteSpace(_laancKeyVariable))
+            {
+                _logger.LogWarning("Environment variable {EnvVar} is not set. Returning offline advisories for mission {MissionPlan}", _laancKeyVariable, missionPlan.Id);
+            }
+            else
+            {
+                _logger.LogInformation("Aloft API key not configured. Returning offline advisories for mission {MissionPlan}", missionPlan.Id);
+            }
         }
 
         var advisories = new List<MissionAirspaceAdvisory>

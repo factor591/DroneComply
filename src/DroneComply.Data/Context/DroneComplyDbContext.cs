@@ -1,11 +1,17 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using DroneComply.Core.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SQLitePCL;
 
 namespace DroneComply.Data.Context;
 
 public class DroneComplyDbContext : DbContext
 {
+    private const string SystemUser = "system";
+
     static DroneComplyDbContext()
     {
         Batteries_V2.Init();
@@ -14,6 +20,18 @@ public class DroneComplyDbContext : DbContext
     public DroneComplyDbContext(DbContextOptions<DroneComplyDbContext> options)
         : base(options)
     {
+    }
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        ApplyAuditInformation();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    {
+        ApplyAuditInformation();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
 
     public DbSet<Aircraft> Aircraft => Set<Aircraft>();
@@ -110,6 +128,8 @@ public class DroneComplyDbContext : DbContext
             entity.Property(e => e.LandingLocation).HasMaxLength(300);
             entity.Property(e => e.MissionObjective).HasMaxLength(1000);
 
+            ConfigureAuditable(entity);
+
             entity.HasMany(e => e.Checklist)
                 .WithOne()
                 .HasForeignKey(e => e.MissionPlanId)
@@ -186,6 +206,8 @@ public class DroneComplyDbContext : DbContext
             entity.Property(e => e.AirspaceClassification).HasMaxLength(100);
             entity.Property(e => e.MissionSummary).HasMaxLength(1000);
 
+            ConfigureAuditable(entity);
+
             entity.HasMany(e => e.Events)
                 .WithOne()
                 .HasForeignKey(e => e.FlightLogId)
@@ -223,6 +245,8 @@ public class DroneComplyDbContext : DbContext
             entity.Property(e => e.PerformedBy).HasMaxLength(200);
             entity.Property(e => e.Notes).HasMaxLength(1000);
 
+            ConfigureAuditable(entity);
+
             entity.HasMany(e => e.Tasks)
                 .WithOne()
                 .HasForeignKey(e => e.MaintenanceRecordId)
@@ -245,6 +269,8 @@ public class DroneComplyDbContext : DbContext
             entity.Property(e => e.ReferenceNumber).HasMaxLength(100);
             entity.Property(e => e.Description).HasMaxLength(1000);
 
+            ConfigureAuditable(entity);
+
             entity.HasMany(e => e.Conditions)
                 .WithOne()
                 .HasForeignKey(e => e.WaiverId)
@@ -264,6 +290,9 @@ public class DroneComplyDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Summary).HasMaxLength(2000);
+
+            ConfigureAuditable(entity);
+
             entity.HasMany(e => e.Violations)
                 .WithOne()
                 .HasForeignKey(e => e.ComplianceReportId)
@@ -278,5 +307,37 @@ public class DroneComplyDbContext : DbContext
             entity.Property(e => e.Description).HasMaxLength(1000);
             entity.Property(e => e.Recommendation).HasMaxLength(1000);
         });
+    }
+
+    private void ApplyAuditInformation()
+    {
+        var utcNow = DateTime.UtcNow;
+
+        foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Property(e => e.CreatedAt).CurrentValue = utcNow;
+                entry.Property(e => e.CreatedBy).CurrentValue = entry.Property(e => e.CreatedBy).CurrentValue ?? SystemUser;
+                entry.Property(e => e.ModifiedAt).CurrentValue = null;
+                entry.Property(e => e.ModifiedBy).CurrentValue = null;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Property(e => e.CreatedAt).IsModified = false;
+                entry.Property(e => e.CreatedBy).IsModified = false;
+
+                entry.Property(e => e.ModifiedAt).CurrentValue = utcNow;
+                entry.Property(e => e.ModifiedBy).CurrentValue = entry.Property(e => e.ModifiedBy).CurrentValue ?? SystemUser;
+            }
+        }
+    }
+
+    private static void ConfigureAuditable<TEntity>(EntityTypeBuilder<TEntity> entity) where TEntity : AuditableEntity
+    {
+        entity.Property(e => e.CreatedAt).IsRequired();
+        entity.Property(e => e.CreatedBy).IsRequired().HasMaxLength(200);
+        entity.Property(e => e.ModifiedAt);
+        entity.Property(e => e.ModifiedBy).HasMaxLength(200);
     }
 }

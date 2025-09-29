@@ -1,8 +1,11 @@
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DroneComply.Core.Interfaces;
 using DroneComply.Core.Models;
+using DroneComply.Core.Primitives;
 
 namespace DroneComply.App.ViewModels;
 
@@ -72,9 +75,9 @@ public partial class PreFlightViewModel : ObservableRecipient
                 StatusMessage = "Create a mission plan to begin pre-flight checks.";
             }
         }
-        catch (Exception ex)
+        catch
         {
-            StatusMessage = $"Failed to load mission plans: {ex.Message}";
+            StatusMessage = "Failed to load mission plans. Please try again.";
         }
     }
 
@@ -87,10 +90,18 @@ public partial class PreFlightViewModel : ObservableRecipient
 
         await RunMissionOperationAsync(async () =>
         {
-            LatestReport = await _preFlightService.EvaluateComplianceAsync(SelectedMission.Id);
-            StatusMessage = LatestReport.IsCompliant
+            var result = await _preFlightService.EvaluateComplianceAsync(SelectedMission.Id);
+            if (result.IsFailure || result.Value is null)
+            {
+                LatestReport = null;
+                StatusMessage = BuildErrorMessage(result, "Compliance evaluation failed.");
+                return;
+            }
+
+            LatestReport = result.Value;
+            StatusMessage = result.Value.IsCompliant
                 ? "Mission is compliant with current checks."
-                : $"Mission has {LatestReport.Violations.Count} compliance issue(s).";
+                : $"Mission has {result.Value.Violations.Count} compliance issue(s).";
         });
     }
 
@@ -103,8 +114,14 @@ public partial class PreFlightViewModel : ObservableRecipient
 
         await RunMissionOperationAsync(async () =>
         {
-            var briefing = await _preFlightService.RefreshWeatherBriefingAsync(SelectedMission.Id);
-            SelectedMission.WeatherBriefing = briefing;
+            var result = await _preFlightService.RefreshWeatherBriefingAsync(SelectedMission.Id);
+            if (result.IsFailure || result.Value is null)
+            {
+                StatusMessage = BuildErrorMessage(result, "Weather briefing update failed.");
+                return;
+            }
+
+            SelectedMission.WeatherBriefing = result.Value;
             StatusMessage = "Weather briefing updated.";
         });
     }
@@ -118,9 +135,15 @@ public partial class PreFlightViewModel : ObservableRecipient
 
         await RunMissionOperationAsync(async () =>
         {
-            var advisories = await _preFlightService.RefreshAirspaceAdvisoriesAsync(SelectedMission.Id);
+            var result = await _preFlightService.RefreshAirspaceAdvisoriesAsync(SelectedMission.Id);
+            if (result.IsFailure || result.Value is null)
+            {
+                StatusMessage = BuildErrorMessage(result, "Airspace advisories update failed.");
+                return;
+            }
+
             SelectedMission.AirspaceAdvisories.Clear();
-            foreach (var advisory in advisories)
+            foreach (var advisory in result.Value)
             {
                 SelectedMission.AirspaceAdvisories.Add(advisory);
             }
@@ -140,9 +163,9 @@ public partial class PreFlightViewModel : ObservableRecipient
 
             await operation();
         }
-        catch (Exception ex)
+        catch
         {
-            StatusMessage = ex.Message;
+            StatusMessage = "An unexpected error occurred. Please try again.";
         }
         finally
         {
@@ -151,5 +174,24 @@ public partial class PreFlightViewModel : ObservableRecipient
             RefreshWeatherCommand.NotifyCanExecuteChanged();
             RefreshAirspaceCommand.NotifyCanExecuteChanged();
         }
+    }
+
+    private static string BuildErrorMessage<T>(Result<T> result, string fallbackMessage)
+    {
+        if (!string.IsNullOrWhiteSpace(result.Error))
+        {
+            return result.Error;
+        }
+
+        if (result.ValidationErrors?.Count > 0)
+        {
+            var first = result.ValidationErrors.First();
+            var combined = string.Join(", ", first.Value);
+            return string.IsNullOrWhiteSpace(combined)
+                ? fallbackMessage
+                : $"{first.Key}: {combined}";
+        }
+
+        return fallbackMessage;
     }
 }

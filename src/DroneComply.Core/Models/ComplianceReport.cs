@@ -1,6 +1,9 @@
+using System;
+using System.Collections.Generic;
+
 namespace DroneComply.Core.Models;
 
-public class ComplianceReport
+public class ComplianceReport : AuditableEntity
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public Guid MissionPlanId { get; set; }

@@ -1,8 +1,10 @@
+using System;
+using System.Collections.Generic;
 using DroneComply.Core.Enums;
 
 namespace DroneComply.Core.Models;
 
-public class MaintenanceRecord
+public class MaintenanceRecord : AuditableEntity
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public Guid AircraftId { get; set; }

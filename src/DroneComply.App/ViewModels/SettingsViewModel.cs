@@ -1,3 +1,4 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Configuration;
@@ -36,10 +37,24 @@ public partial class SettingsViewModel : ObservableRecipient
     {
         DatabaseConnection = _configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
         FaaWeatherEndpoint = _configuration["ExternalAPIs:FAAWeatherAPI"] ?? string.Empty;
-        AloftApiKey = _configuration["ExternalAPIs:AloftAPI"] ?? string.Empty;
-        GoogleMapsApiKey = _configuration["ExternalAPIs:GoogleMapsAPI"] ?? string.Empty;
+        AloftApiKey = DescribeSecret("Secrets:ApiKeys:Aloft");
+        GoogleMapsApiKey = DescribeSecret("Secrets:ApiKeys:GoogleMaps");
 
-        StatusMessage = "Edit appsettings.json to update values.";
+        StatusMessage = "Secrets are sourced from environment variables. Update appsettings.*.json to change bindings.";
+    }
+
+    private string DescribeSecret(string secretPath)
+    {
+        var envVariable = _configuration[secretPath];
+        if (string.IsNullOrWhiteSpace(envVariable))
+        {
+            return "Not configured";
+        }
+
+        var isSet = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(envVariable));
+        return isSet
+            ? $"Environment variable '{envVariable}' is configured."
+            : $"Environment variable '{envVariable}' is not set.";
     }
 
     private void CopyConnectionString()
@@ -49,9 +64,9 @@ public partial class SettingsViewModel : ObservableRecipient
             Windows.ApplicationModel.DataTransfer.Clipboard.SetText(DatabaseConnection);
             StatusMessage = "Connection string copied to clipboard.";
         }
-        catch (Exception ex)
+        catch
         {
-            StatusMessage = ex.Message;
+            StatusMessage = "Unable to copy the connection string. Please set clipboard permissions.";
         }
     }
 }

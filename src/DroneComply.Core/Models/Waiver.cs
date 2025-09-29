@@ -1,8 +1,10 @@
+using System;
+using System.Collections.Generic;
 using DroneComply.Core.Enums;
 
 namespace DroneComply.Core.Models;
 
-public class Waiver
+public class Waiver : AuditableEntity
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public WaiverType Type { get; set; } = WaiverType.Part107_200;

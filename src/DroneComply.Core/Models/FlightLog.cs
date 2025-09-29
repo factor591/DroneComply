@@ -1,8 +1,10 @@
+using System;
+using System.Collections.Generic;
 using DroneComply.Core.Enums;
 
 namespace DroneComply.Core.Models;
 
-public class FlightLog
+public class FlightLog : AuditableEntity
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public Guid PilotId { get; set; }
