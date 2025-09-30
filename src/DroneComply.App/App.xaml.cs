@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Serilog;
+using Serilog.Settings.Configuration;
 
 namespace DroneComply.App;
 
@@ -88,3 +89,6 @@ public partial class App : Application
             });
     }
 }
+
+
+

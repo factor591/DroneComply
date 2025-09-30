@@ -2,6 +2,7 @@ using System;
 using DroneComply.Core.Interfaces;
 using DroneComply.Data.Context;
 using DroneComply.Data.Repositories;
+using DroneComply.Data.Seeding;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -40,7 +41,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMissionPlanRepository, MissionPlanRepository>();
         services.AddScoped<IFlightLogRepository, FlightLogRepository>();
         services.AddScoped<IMaintenanceRepository, MaintenanceRepository>();
+        services.AddScoped<IDbSeeder, DbSeeder>();
 
         return services;
     }
 }
+
+
+

@@ -18,7 +18,7 @@
             <Button Content="Load" Command="{Binding LoadCommand}" />
             <ListView ItemsSource="{Binding FlightLogs}" SelectedItem="{Binding SelectedFlightLog, Mode=TwoWay}" Height="520">
                 <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="models:FlightLog">
+                    <DataTemplate>
                         <StackPanel Padding="8" Spacing="4">
                             <TextBlock Text="{Binding FlightDate, StringFormat='{}{0:g}'}" FontWeight="SemiBold" />
                             <TextBlock Text="{Binding Location}" />
@@ -60,7 +60,7 @@
                     <TextBlock Text="Events" FontSize="20" FontWeight="SemiBold" />
                     <ListView ItemsSource="{Binding SelectedFlightLog.Events}">
                         <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="models:FlightLogEvent">
+                            <DataTemplate>
                                 <StackPanel Padding="8" Spacing="4">
                                     <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:g}'}" FontWeight="SemiBold" />
                                     <TextBlock Text="{Binding EventType}" />
@@ -79,3 +79,5 @@
         </StackPanel>
     </Grid>
 </Page>
+
+

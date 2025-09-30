@@ -17,7 +17,7 @@
             <Button Content="Refresh" Command="{Binding LoadCommand}" Margin="0,0,0,12" />
             <ListView ItemsSource="{Binding MissionPlans}" SelectedItem="{Binding SelectedMission, Mode=TwoWay}" Height="500">
                 <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="models:MissionPlan">
+                    <DataTemplate>
                         <StackPanel Padding="8" Spacing="4">
                             <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
                             <TextBlock Text="{Binding PlannedDate, StringFormat='{}{0:g}'}" />
@@ -70,7 +70,7 @@
                         <TextBlock Text="{Binding SelectedMission.WeatherBriefing.Summary}" TextWrapping="Wrap" />
                         <ItemsControl ItemsSource="{Binding SelectedMission.WeatherBriefing.Conditions}">
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="models:WeatherCondition">
+                                <DataTemplate>
                                     <StackPanel Orientation="Horizontal" Spacing="12">
                                         <TextBlock Text="{Binding Location}" FontWeight="SemiBold" />
                                         <TextBlock Text="{Binding TemperatureCelsius, StringFormat='Temp {0} C'}" />
@@ -88,7 +88,7 @@
                         <TextBlock Text="Airspace Advisories" FontSize="20" FontWeight="SemiBold" />
                         <ListView ItemsSource="{Binding SelectedMission.AirspaceAdvisories}">
                             <ListView.ItemTemplate>
-                                <DataTemplate x:DataType="models:MissionAirspaceAdvisory">
+                                <DataTemplate>
                                     <StackPanel Padding="8" Spacing="4">
                                         <TextBlock Text="{Binding AdvisoryType}" FontWeight="SemiBold" />
                                         <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
@@ -106,7 +106,7 @@
                         <TextBlock Text="{Binding LatestReport.Summary}" TextWrapping="Wrap" />
                         <ItemsControl ItemsSource="{Binding LatestReport.Violations}">
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="models:ComplianceViolation">
+                                <DataTemplate>
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
                                         <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
@@ -121,3 +121,5 @@
         </ScrollViewer>
     </Grid>
 </Page>
+
+

@@ -2,6 +2,7 @@ using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Configuration;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace DroneComply.App.ViewModels;
 
@@ -61,7 +62,10 @@ public partial class SettingsViewModel : ObservableRecipient
     {
         try
         {
-            Windows.ApplicationModel.DataTransfer.Clipboard.SetText(DatabaseConnection);
+            var dataPackage = new DataPackage();
+            dataPackage.SetText(DatabaseConnection);
+            Clipboard.SetContent(dataPackage);
+            Clipboard.Flush();
             StatusMessage = "Connection string copied to clipboard.";
         }
         catch

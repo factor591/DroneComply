@@ -17,7 +17,7 @@
             <Button Content="Load" Command="{Binding LoadCommand}" />
             <ListView ItemsSource="{Binding Waivers}" SelectedItem="{Binding SelectedWaiver, Mode=TwoWay}" Height="520">
                 <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="models:Waiver">
+                    <DataTemplate>
                         <StackPanel Padding="8" Spacing="4">
                             <TextBlock Text="{Binding ReferenceNumber}" FontWeight="SemiBold" />
                             <TextBlock Text="{Binding Type}" />
@@ -41,3 +41,4 @@
         </StackPanel>
     </Grid>
 </Page>
+

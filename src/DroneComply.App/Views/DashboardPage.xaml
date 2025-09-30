@@ -31,7 +31,7 @@
 
             <ListView Grid.Row="1" ItemsSource="{Binding UpcomingMissions}" SelectionMode="None">
                 <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="models:MissionPlan">
+                    <DataTemplate>
                         <Grid Padding="12" ColumnSpacing="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -52,3 +52,5 @@
         </Grid>
     </Grid>
 </Page>
+
+

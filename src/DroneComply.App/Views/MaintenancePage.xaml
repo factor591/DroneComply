@@ -19,7 +19,7 @@
             <Button Content="Load" Command="{Binding LoadCommand}" />
             <ListView ItemsSource="{Binding MaintenanceRecords}" SelectedItem="{Binding SelectedRecord, Mode=TwoWay}" Height="520">
                 <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="models:MaintenanceRecord">
+                    <DataTemplate>
                         <StackPanel Padding="8" Spacing="4">
                             <TextBlock Text="{Binding Description}" FontWeight="SemiBold" />
                             <TextBlock Text="{Binding ScheduledDate, StringFormat='Scheduled {0:g}'}" />
@@ -35,7 +35,7 @@
             <TextBlock Text="Tasks" FontSize="24" FontWeight="SemiBold" />
             <ListView ItemsSource="{Binding SelectedRecord.Tasks}">
                 <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="models:MaintenanceTask">
+                    <DataTemplate>
                         <StackPanel Orientation="Horizontal" Spacing="12" Padding="8">
                             <CheckBox IsChecked="{Binding IsCompleted, Mode=TwoWay}" Content="{Binding Name}" />
                             <Button Content="Complete" Command="{Binding DataContext.CompleteTaskCommand, ElementName=RootPage}" CommandParameter="{Binding}" />
@@ -46,3 +46,5 @@
         </StackPanel>
     </Grid>
 </Page>
+
+
