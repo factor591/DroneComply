@@ -20,7 +20,7 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Padding="8" Spacing="4">
-                            <TextBlock Text="{Binding FlightDate, StringFormat='{}{0:g}'}" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding FlightDate, Converter={StaticResource FormattingConverter}, ConverterParameter='g'}" FontWeight="SemiBold" />
                             <TextBlock Text="{Binding Location}" />
                             <TextBlock Text="{Binding Duration}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                         </StackPanel>
@@ -62,7 +62,7 @@
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Padding="8" Spacing="4">
-                                    <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:g}'}" FontWeight="SemiBold" />
+                                    <TextBlock Text="{Binding Timestamp, Converter={StaticResource FormattingConverter}, ConverterParameter='g'}" FontWeight="SemiBold" />
                                     <TextBlock Text="{Binding EventType}" />
                                     <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
                                 </StackPanel>

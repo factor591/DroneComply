@@ -22,7 +22,7 @@
                     <DataTemplate>
                         <StackPanel Padding="8" Spacing="4">
                             <TextBlock Text="{Binding Description}" FontWeight="SemiBold" />
-                            <TextBlock Text="{Binding ScheduledDate, StringFormat='Scheduled {0:g}'}" />
+                            <TextBlock Text="{Binding ScheduledDate, Converter={StaticResource FormattingConverter}, ConverterParameter='Scheduled {0:g}'}" />
                             <TextBlock Text="{Binding Status}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                         </StackPanel>
                     </DataTemplate>

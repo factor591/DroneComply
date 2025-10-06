@@ -33,9 +33,9 @@
             <TextBlock Text="Details" FontSize="24" FontWeight="SemiBold" />
             <TextBox PlaceholderText="Reference" Text="{Binding SelectedWaiver.ReferenceNumber, Mode=TwoWay}" />
             <ComboBox x:Name="StatusCombo" SelectedItem="{Binding SelectedWaiver.Status, Mode=TwoWay}" />
-            <DatePicker Date="{Binding SelectedWaiver.SubmittedOn, Mode=TwoWay}" />
-            <DatePicker Date="{Binding SelectedWaiver.ApprovedOn, Mode=TwoWay}" PlaceholderText="Approved" />
-            <DatePicker Date="{Binding SelectedWaiver.ExpirationDate, Mode=TwoWay}" PlaceholderText="Expires" />
+            <DatePicker Date="{Binding SelectedWaiver.SubmittedOn, Mode=TwoWay}" Header="Submitted" />
+            <DatePicker Date="{Binding SelectedWaiver.ApprovedOn, Mode=TwoWay}" Header="Approved" />
+            <DatePicker Date="{Binding SelectedWaiver.ExpirationDate, Mode=TwoWay}" Header="Expires" />
             <TextBox PlaceholderText="Description" Text="{Binding SelectedWaiver.Description, Mode=TwoWay}" AcceptsReturn="True" Height="120" TextWrapping="Wrap" />
             <Button Content="Save" Command="{Binding SaveCommand}" />
         </StackPanel>

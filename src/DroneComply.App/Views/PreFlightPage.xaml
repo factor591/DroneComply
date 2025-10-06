@@ -20,7 +20,7 @@
                     <DataTemplate>
                         <StackPanel Padding="8" Spacing="4">
                             <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                            <TextBlock Text="{Binding PlannedDate, StringFormat='{}{0:g}'}" />
+                            <TextBlock Text="{Binding PlannedDate, Converter={StaticResource FormattingConverter}, ConverterParameter='g'}" />
                             <TextBlock Text="{Binding LaunchLocation}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                         </StackPanel>
                     </DataTemplate>
@@ -49,7 +49,7 @@
                     <TextBlock Grid.Column="1" Text="{Binding SelectedMission.Name}" />
 
                     <TextBlock Grid.Row="1" Text="Planned:" FontWeight="SemiBold" />
-                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedMission.PlannedDate, StringFormat='{}{0:F}'}" />
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedMission.PlannedDate, Converter={StaticResource FormattingConverter}, ConverterParameter='F'}" />
 
                     <TextBlock Grid.Row="2" Text="Pilot:" FontWeight="SemiBold" />
                     <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedMission.PilotId}" />
@@ -73,9 +73,9 @@
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" Spacing="12">
                                         <TextBlock Text="{Binding Location}" FontWeight="SemiBold" />
-                                        <TextBlock Text="{Binding TemperatureCelsius, StringFormat='Temp {0} C'}" />
-                                        <TextBlock Text="{Binding WindSpeedKnots, StringFormat='Wind {0} kt'}" />
-                                        <TextBlock Text="{Binding VisibilityMiles, StringFormat='Vis {0} mi'}" />
+                                        <TextBlock Text="{Binding TemperatureCelsius, Converter={StaticResource FormattingConverter}, ConverterParameter='Temp {0} C'}" />
+                                        <TextBlock Text="{Binding WindSpeedKnots, Converter={StaticResource FormattingConverter}, ConverterParameter='Wind {0} kt'}" />
+                                        <TextBlock Text="{Binding VisibilityMiles, Converter={StaticResource FormattingConverter}, ConverterParameter='Vis {0} mi'}" />
                                     </StackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>

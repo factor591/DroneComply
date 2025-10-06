@@ -4,8 +4,11 @@ using DroneComply.App.Services;
 using DroneComply.App.ViewModels;
 using DroneComply.App.Views;
 using DroneComply.Core.Extensions;
+using DroneComply.Data.Context;
 using DroneComply.Data.Extensions;
+using DroneComply.Data.Seeding;
 using DroneComply.External.Extensions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -36,12 +39,36 @@ public partial class App : Application
         throw new InvalidOperationException($"Service of type {typeof(T)} is not registered.");
     }
 
-    protected override void OnLaunched(LaunchActivatedEventArgs args)
+    protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
         base.OnLaunched(args);
 
+        // Initialize database
+        await InitializeDatabaseAsync();
+
         var window = Host.Services.GetRequiredService<MainWindow>();
         window.Activate();
+    }
+
+    private async System.Threading.Tasks.Task InitializeDatabaseAsync()
+    {
+        try
+        {
+            using var scope = Host.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<DroneComplyDbContext>();
+
+            // Apply migrations
+            await dbContext.Database.MigrateAsync();
+
+            // Seed data
+            var seeder = scope.ServiceProvider.GetRequiredService<IDbSeeder>();
+            await seeder.SeedAsync();
+        }
+        catch (Exception ex)
+        {
+            var logger = Host.Services.GetRequiredService<ILogger<App>>();
+            logger.LogError(ex, "An error occurred while initializing the database");
+        }
     }
 
     private static IHostBuilder CreateHostBuilder()

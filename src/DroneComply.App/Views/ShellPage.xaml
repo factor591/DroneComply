@@ -5,7 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <NavigationView x:Name="ShellNavigationView" IsBackButtonVisible="Collapsed" PaneDisplayMode="Left" SelectionFollowsFocus="Disabled" ItemInvoked="OnItemInvoked" Loaded="OnNavigationViewLoaded">
+    <NavigationView x:Name="ShellNavigationView" IsBackButtonVisible="Collapsed" PaneDisplayMode="Left" SelectionFollowsFocus="Disabled" IsSettingsVisible="False" ItemInvoked="OnItemInvoked" Loaded="OnNavigationViewLoaded">
         <NavigationView.Content>
             <Frame x:Name="ContentFrame" IsNavigationStackEnabled="False" />
         </NavigationView.Content>

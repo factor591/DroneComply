@@ -1,4 +1,5 @@
 <Page
+    x:Name="Page"
     x:Class="DroneComply.App.Views.DashboardPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -9,42 +10,46 @@
     <Grid Padding="24" RowSpacing="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <TextBlock Text="Dashboard" FontSize="28" FontWeight="SemiBold" />
-
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-            <TextBlock Text="Pending approvals:" FontWeight="SemiBold" />
-            <TextBlock Text="{Binding PendingApprovalCount}" />
-            <Button Content="Refresh" Command="{Binding RefreshCommand}" />
+        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <Button Content="Add Mission" Command="{Binding AddMissionCommand}">
+                <Button.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Control" Key="N" />
+                </Button.KeyboardAccelerators>
+            </Button>
+            <Button Content="Refresh" Command="{Binding LoadCommand}" />
+            <TextBlock Text="Pending approvals:" FontWeight="SemiBold" VerticalAlignment="Center" Margin="12,0,0,0" />
+            <TextBlock Text="{Binding PendingApprovalCount}" VerticalAlignment="Center" />
         </StackPanel>
 
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <TextBlock Text="{Binding StatusMessage}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            <TextBlock Text="{Binding StatusMessage}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,8,0,8" />
 
-            <ListView Grid.Row="1" ItemsSource="{Binding UpcomingMissions}" SelectionMode="None">
+            <ListView Grid.Row="1" ItemsSource="{Binding UpcomingMissions}" SelectedItem="{Binding SelectedMission, Mode=TwoWay}" SelectionMode="Single">
                 <ListView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="models:MissionPlan">
                         <Grid Padding="12" ColumnSpacing="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel>
-                                <TextBlock Text="{Binding Name}" FontSize="18" FontWeight="SemiBold" />
-                                <TextBlock Text="{Binding MissionObjective}" TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <TextBox Text="{Binding Name, Mode=TwoWay}" FontSize="18" FontWeight="SemiBold" BorderThickness="0" Background="Transparent" />
+                                <TextBox Text="{Binding MissionObjective, Mode=TwoWay}" TextWrapping="Wrap" BorderThickness="0" Background="Transparent" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
-                            <StackPanel Grid.Column="1" HorizontalAlignment="Right" Spacing="4">
-                                <TextBlock Text="{Binding PlannedDate, StringFormat='{}{0:MMM d, yyyy}'}" />
-                                <TextBlock Text="{Binding PlannedDate, StringFormat='{}{0:HH:mm}'}" />
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Right" Spacing="4" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding PlannedDate, Converter={StaticResource FormattingConverter}, ConverterParameter='MMM d, yyyy'}" />
+                                <TextBlock Text="{Binding PlannedDate, Converter={StaticResource FormattingConverter}, ConverterParameter='HH:mm'}" />
                             </StackPanel>
+                            <Button Grid.Column="2" Content="Delete" Command="{Binding DataContext.DeleteMissionCommand, ElementName=Page}" CommandParameter="{Binding}" VerticalAlignment="Center" />
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>

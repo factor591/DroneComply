@@ -9,7 +9,7 @@ public partial class ShellViewModel : ObservableObject
     {
         PrimaryItems = new List<ShellNavigationItem>
         {
-            new("Dashboard", "\uE80F", typeof(DashboardPage)),
+            new("Missions", "\uE8F4", typeof(DashboardPage)),
             new("Pre-Flight", "\uE709", typeof(PreFlightPage)),
             new("Flight Logs", "\uE81E", typeof(FlightLogPage)),
             new("Maintenance", "\uE90F", typeof(MaintenancePage)),
