@@ -87,6 +87,16 @@ public partial class PilotViewModel : ObservableRecipient
         try
         {
             await _pilotRepository.UpdateAsync(pilot);
+
+            // Refresh the pilot in the list
+            var index = Pilots.IndexOf(pilot);
+            if (index >= 0)
+            {
+                Pilots.RemoveAt(index);
+                Pilots.Insert(index, pilot);
+                SelectedPilot = pilot;
+            }
+
             IsEditing = false;
             StatusMessage = $"Pilot {pilot.FullName} saved successfully.";
         }
@@ -140,10 +150,36 @@ public partial class PilotViewModel : ObservableRecipient
     }
 
     [RelayCommand]
-    private void CancelEdit()
+    private async Task CancelEditAsync()
     {
-        IsEditing = false;
-        StatusMessage = "Edit cancelled.";
+        if (SelectedPilot == null)
+        {
+            IsEditing = false;
+            return;
+        }
+
+        try
+        {
+            // Reload the pilot from the database to discard changes
+            var freshPilot = await _pilotRepository.GetByIdAsync(SelectedPilot.Id);
+            if (freshPilot != null)
+            {
+                var index = Pilots.IndexOf(SelectedPilot);
+                if (index >= 0)
+                {
+                    Pilots[index] = freshPilot;
+                    SelectedPilot = freshPilot;
+                }
+            }
+
+            IsEditing = false;
+            StatusMessage = "Edit cancelled.";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Failed to cancel: {ex.Message}";
+            IsEditing = false;
+        }
     }
 
     [RelayCommand]

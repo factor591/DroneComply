@@ -68,19 +68,16 @@
                     <TextBlock Text="Pilot Details" Style="{StaticResource SubtitleTextBlockStyle}"/>
 
                     <StackPanel Spacing="8">
-                        <TextBox Header="First Name" Text="{Binding SelectedPilot.FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBox Header="Last Name" Text="{Binding SelectedPilot.LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBox Header="Email" Text="{Binding SelectedPilot.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBox Header="Phone Number" Text="{Binding SelectedPilot.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <TextBox Header="Certificate Number" Text="{Binding SelectedPilot.CertificateNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                        <CalendarDatePicker Header="Certification Date" Date="{Binding SelectedPilot.CertificationDate, Mode=TwoWay, Converter={StaticResource DateTimeToDateTimeOffsetConverter}}"/>
-                        <ToggleSwitch Header="Active" IsOn="{Binding SelectedPilot.IsActive, Mode=TwoWay}"/>
+                        <TextBox Header="First Name" Text="{Binding SelectedPilot.FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="{Binding IsEditing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
+                        <TextBox Header="Last Name" Text="{Binding SelectedPilot.LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="{Binding IsEditing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
+                        <TextBox Header="Email" Text="{Binding SelectedPilot.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="{Binding IsEditing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
+                        <TextBox Header="Phone Number" Text="{Binding SelectedPilot.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="{Binding IsEditing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
+                        <TextBox Header="Certificate Number" Text="{Binding SelectedPilot.CertificateNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="{Binding IsEditing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
+                        <CalendarDatePicker Header="Certification Date" Date="{Binding SelectedPilot.CertificationDate, Mode=TwoWay, Converter={StaticResource DateTimeToDateTimeOffsetConverter}}" IsEnabled="{Binding IsEditing, Mode=OneWay}"/>
+                        <ToggleSwitch Header="Active" IsOn="{Binding SelectedPilot.IsActive, Mode=TwoWay}" IsEnabled="{Binding IsEditing, Mode=OneWay}"/>
                     </StackPanel>
 
-                    <!-- Certifications -->
-                    <TextBlock Text="Certifications" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,16,0,0"/>
-
-                    <ItemsRepeater ItemsSource="{Binding SelectedPilot.Certifications, Mode=OneWay}">
+                    <ItemsRepeater ItemsSource="{Binding SelectedPilot.Certifications, Mode=OneWay}" Margin="0,16,0,0">
                         <ItemsRepeater.ItemTemplate>
                             <DataTemplate x:DataType="models:PilotCertification">
                                 <Border BorderBrush="Gray" BorderThickness="1" Padding="12" Margin="0,4" CornerRadius="4">
@@ -96,9 +93,8 @@
 
                     <!-- Actions -->
                     <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,16,0,0">
-                        <Button Content="Edit" Command="{Binding EditPilotCommand}" CommandParameter="{Binding SelectedPilot, Mode=OneWay}" Visibility="{Binding IsEditing, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
-                        <Button Content="Save" Style="{StaticResource AccentButtonStyle}" Command="{Binding SavePilotCommand}" CommandParameter="{Binding SelectedPilot, Mode=OneWay}" Visibility="{Binding IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                        <Button Content="Cancel" Command="{Binding CancelEditCommand}" Visibility="{Binding IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <Button Content="Edit" Command="{Binding EditPilotCommand}" CommandParameter="{Binding SelectedPilot, Mode=OneWay}"/>
+                        <Button Content="Save" Style="{StaticResource AccentButtonStyle}" Command="{Binding SavePilotCommand}" CommandParameter="{Binding SelectedPilot, Mode=OneWay}"/>
                         <Button Content="Delete" Command="{Binding DeletePilotCommand}" CommandParameter="{Binding SelectedPilot, Mode=OneWay}"/>
                     </StackPanel>
                 </StackPanel>
