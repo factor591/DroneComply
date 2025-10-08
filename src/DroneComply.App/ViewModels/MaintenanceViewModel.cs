@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DroneComply.Core.Enums;
@@ -46,10 +47,14 @@ public partial class MaintenanceViewModel : ObservableRecipient
 
     partial void OnSelectedAircraftChanged(Aircraft? value)
     {
-        if (value != null)
+        if (value == null)
         {
-            _ = LoadMaintenanceForAircraftAsync();
+            MaintenanceRecords.Clear();
+            SelectedRecord = null;
+            return;
         }
+
+        _ = LoadMaintenanceForAircraftAsync();
     }
 
     public IAsyncRelayCommand LoadCommand { get; }
@@ -62,7 +67,17 @@ public partial class MaintenanceViewModel : ObservableRecipient
             IsBusy = true;
 
             var aircraftList = await _aircraftRepository.ListAsync();
+            var previouslySelectedId = SelectedAircraft?.Id;
             Aircraft = new ObservableCollection<Aircraft>(aircraftList);
+
+            if (Aircraft.Count > 0)
+            {
+                SelectedAircraft = Aircraft.FirstOrDefault(a => a.Id == previouslySelectedId) ?? Aircraft.First();
+            }
+            else
+            {
+                SelectedAircraft = null;
+            }
 
             StatusMessage = aircraftList.Count == 0
                 ? "No aircraft found."
@@ -85,6 +100,7 @@ public partial class MaintenanceViewModel : ObservableRecipient
         try
         {
             IsBusy = true;
+            var previouslySelectedRecordId = SelectedRecord?.Id;
             MaintenanceRecords.Clear();
 
             var records = await _maintenanceRepository.GetOutstandingAsync(SelectedAircraft.Id);
@@ -93,6 +109,8 @@ public partial class MaintenanceViewModel : ObservableRecipient
             {
                 MaintenanceRecords.Add(record);
             }
+
+            SelectedRecord = MaintenanceRecords.FirstOrDefault(r => r.Id == previouslySelectedRecordId) ?? MaintenanceRecords.FirstOrDefault();
 
             if (MaintenanceRecords.Count == 0)
             {
@@ -172,6 +190,7 @@ public partial class MaintenanceViewModel : ObservableRecipient
             task.IsCompleted = true;
             task.CompletedOn = DateTime.UtcNow;
             StatusMessage = "Task completed.";
+            OnPropertyChanged(nameof(SelectedRecord));
         }
         catch (Exception ex)
         {

@@ -15,7 +15,9 @@ namespace DroneComply.Data.Migrations
                 table: "Pilots",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: false);
+                defaultValue: true);
+
+            migrationBuilder.Sql("UPDATE Pilots SET IsActive = 1;");
         }
 
         /// <inheritdoc />

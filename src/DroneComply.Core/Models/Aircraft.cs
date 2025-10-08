@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using DroneComply.Core.Enums;
 
 namespace DroneComply.Core.Models;
@@ -15,5 +16,5 @@ public class Aircraft
     public AircraftStatus Status { get; set; } = AircraftStatus.Active;
     public DateTime CommissionedOn { get; set; } = DateTime.UtcNow;
     public DateTime? LastMaintenance { get; set; }
-    public List<AircraftEquipment> Equipment { get; set; } = new();
+    public ObservableCollection<AircraftEquipment> Equipment { get; set; } = new();
 }

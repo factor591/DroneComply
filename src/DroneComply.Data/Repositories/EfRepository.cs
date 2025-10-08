@@ -44,7 +44,14 @@ public class EfRepository<T> : IAsyncRepository<T> where T : class
 
     public async Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
     {
-        DbContext.Set<T>().Update(entity);
+        var entry = DbContext.Entry(entity);
+
+        if (entry.State == EntityState.Detached)
+        {
+            DbContext.Set<T>().Attach(entity);
+            entry.State = EntityState.Modified;
+        }
+
         await DbContext.SaveChangesAsync(cancellationToken);
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using DroneComply.Core.Enums;
@@ -154,7 +155,7 @@ public sealed class DbSeeder : IDbSeeder
                 Status = AircraftStatus.Active,
                 CommissionedOn = utcNow.AddYears(-1).AddMonths(-4),
                 LastMaintenance = utcNow.AddDays(-30),
-                Equipment = new List<AircraftEquipment>
+                Equipment = new ObservableCollection<AircraftEquipment>
                 {
                     new()
                     {
@@ -187,7 +188,7 @@ public sealed class DbSeeder : IDbSeeder
                 Status = AircraftStatus.Active,
                 CommissionedOn = utcNow.AddYears(-2),
                 LastMaintenance = utcNow.AddDays(-75),
-                Equipment = new List<AircraftEquipment>
+                Equipment = new ObservableCollection<AircraftEquipment>
                 {
                     new()
                     {

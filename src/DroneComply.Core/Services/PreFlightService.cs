@@ -102,22 +102,11 @@ public class PreFlightService : IPreFlightService
 
             _logger.LogInformation("Refreshing weather briefing for mission {MissionId}", missionPlanId);
             var briefing = await _weatherService.GetWeatherBriefingAsync(missionPlan, cancellationToken);
-            briefing.MissionPlanId = missionPlan.Id;
+            var persisted = await _missionPlanRepository.ReplaceWeatherBriefingAsync(missionPlan.Id, briefing, cancellationToken);
 
-            foreach (var condition in briefing.Conditions)
-            {
-                condition.WeatherBriefingId = briefing.Id;
-            }
+            missionPlan.WeatherBriefing = persisted;
 
-            foreach (var alert in briefing.Alerts)
-            {
-                alert.WeatherBriefingId = briefing.Id;
-            }
-
-            missionPlan.WeatherBriefing = briefing;
-            await _missionPlanRepository.UpdateAsync(missionPlan, cancellationToken);
-
-            return Result<WeatherBriefing>.Success(briefing);
+            return Result<WeatherBriefing>.Success(persisted);
         }
         catch (Exception ex)
         {
@@ -140,15 +129,10 @@ public class PreFlightService : IPreFlightService
             _logger.LogInformation("Refreshing airspace advisories for mission {MissionId}", missionPlanId);
             var advisories = await _airspaceAdvisoryService.GetAirspaceAdvisoriesAsync(missionPlan, cancellationToken);
 
-            missionPlan.AirspaceAdvisories.Clear();
-            foreach (var advisory in advisories)
-            {
-                advisory.MissionPlanId = missionPlan.Id;
-                missionPlan.AirspaceAdvisories.Add(advisory);
-            }
+            var persisted = await _missionPlanRepository.ReplaceAirspaceAdvisoriesAsync(missionPlan.Id, advisories, cancellationToken);
+            missionPlan.AirspaceAdvisories = persisted.ToList();
 
-            await _missionPlanRepository.UpdateAsync(missionPlan, cancellationToken);
-            return Result<IReadOnlyList<MissionAirspaceAdvisory>>.Success(missionPlan.AirspaceAdvisories.AsReadOnly());
+            return Result<IReadOnlyList<MissionAirspaceAdvisory>>.Success(persisted);
         }
         catch (Exception ex)
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DroneComply.Core.Enums;
@@ -42,8 +43,10 @@ public partial class AircraftViewModel : ObservableRecipient
     {
         try
         {
+            var previouslySelectedId = SelectedAircraft?.Id;
             var aircraft = await _aircraftRepository.ListAsync();
             Aircraft = new ObservableCollection<Aircraft>(aircraft);
+            SelectedAircraft = Aircraft.FirstOrDefault(a => a.Id == previouslySelectedId) ?? Aircraft.FirstOrDefault();
             StatusMessage = aircraft.Count == 0
                 ? "No aircraft found. Add aircraft to get started."
                 : $"{aircraft.Count} aircraft loaded.";
@@ -128,7 +131,7 @@ public partial class AircraftViewModel : ObservableRecipient
             Aircraft.Remove(aircraft);
 
             if (SelectedAircraft == aircraft)
-                SelectedAircraft = null;
+                SelectedAircraft = Aircraft.FirstOrDefault();
 
             StatusMessage = $"Aircraft {aircraft.Name} deleted.";
         }
@@ -182,16 +185,28 @@ public partial class AircraftViewModel : ObservableRecipient
     }
 
     [RelayCommand]
-    private async Task RemoveEquipmentAsync((Aircraft aircraft, AircraftEquipment equipment) args)
+    private async Task RemoveEquipmentAsync(AircraftEquipment? equipment)
     {
+        if (SelectedAircraft == null || equipment == null)
+        {
+            return;
+        }
+
+        var index = SelectedAircraft.Equipment.IndexOf(equipment);
+        if (index < 0)
+        {
+            return;
+        }
+
         try
         {
-            args.aircraft.Equipment.Remove(args.equipment);
-            await _aircraftRepository.UpdateAsync(args.aircraft);
+            SelectedAircraft.Equipment.RemoveAt(index);
+            await _aircraftRepository.UpdateAsync(SelectedAircraft);
             StatusMessage = "Equipment removed.";
         }
         catch (Exception ex)
         {
+            SelectedAircraft.Equipment.Insert(index, equipment);
             StatusMessage = $"Failed to remove equipment: {ex.Message}";
         }
     }

@@ -103,6 +103,36 @@
                                      Height="200"
                                      PlaceholderText="Enter maintenance notes here..."/>
 
+                            <TextBlock Text="Tasks" FontWeight="SemiBold" Margin="0,16,0,0"/>
+                            <ItemsRepeater ItemsSource="{Binding SelectedRecord.Tasks}">
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="models:MaintenanceTask">
+                                        <Border BorderBrush="Gray" BorderThickness="1" Padding="12" Margin="0,4" CornerRadius="4">
+                                            <Grid ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Spacing="4">
+                                                    <CheckBox Content="{Binding Name}"
+                                                              IsChecked="{Binding IsCompleted, Mode=OneWay}"
+                                                              IsEnabled="False"/>
+                                                    <TextBlock Text="{Binding CompletedOn, Converter={StaticResource FormattingConverter}, ConverterParameter='Completed {0:g}'}"
+                                                               Foreground="Gray"
+                                                               FontSize="12"
+                                                               Visibility="{Binding IsCompleted, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                </StackPanel>
+                                                <Button Grid.Column="1"
+                                                        Content="Complete"
+                                                        Command="{Binding DataContext.CompleteTaskCommand, ElementName=RootPage}"
+                                                        CommandParameter="{Binding}"
+                                                        Visibility="{Binding IsCompleted, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
+
                             <Button Content="Save"
                                     Style="{StaticResource AccentButtonStyle}"
                                     Command="{Binding SaveMaintenanceRecordCommand}"
