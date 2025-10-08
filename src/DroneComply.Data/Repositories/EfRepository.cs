@@ -37,9 +37,9 @@ public class EfRepository<T> : IAsyncRepository<T> where T : class
         return await DbContext.Set<T>().FindAsync(new object?[] { id }, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<T>> ListAsync(CancellationToken cancellationToken = default)
+    public virtual async Task<IReadOnlyList<T>> ListAsync(CancellationToken cancellationToken = default)
     {
-        return await DbContext.Set<T>().AsNoTracking().ToListAsync(cancellationToken);
+        return await DbContext.Set<T>().ToListAsync(cancellationToken);
     }
 
     public async Task UpdateAsync(T entity, CancellationToken cancellationToken = default)

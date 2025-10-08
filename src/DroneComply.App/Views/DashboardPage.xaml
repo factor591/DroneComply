@@ -1,3 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Name="Page"
     x:Class="DroneComply.App.Views.DashboardPage"
@@ -7,13 +8,18 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:DroneComply.Core.Models"
     mc:Ignorable="d">
-    <Grid Padding="24" RowSpacing="12">
+    <Grid Padding="24">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+        <!-- Header -->
+        <TextBlock Grid.Row="0" Text="Mission Dashboard" Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,16"/>
+
+        <!-- Toolbar -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
             <Button Content="Add Mission" Command="{Binding AddMissionCommand}">
                 <Button.KeyboardAccelerators>
                     <KeyboardAccelerator Modifiers="Control" Key="N" />
@@ -22,38 +28,94 @@
             <Button Content="Refresh" Command="{Binding LoadCommand}" />
             <TextBlock Text="Pending approvals:" FontWeight="SemiBold" VerticalAlignment="Center" Margin="12,0,0,0" />
             <TextBlock Text="{Binding PendingApprovalCount}" VerticalAlignment="Center" />
+            <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" Foreground="Gray" Margin="12,0,0,0"/>
         </StackPanel>
 
-        <Grid Grid.Row="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+        <!-- Content -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="350"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-            <TextBlock Text="{Binding StatusMessage}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,8,0,8" />
-
-            <ListView Grid.Row="1" ItemsSource="{Binding UpcomingMissions}" SelectedItem="{Binding SelectedMission, Mode=TwoWay}" SelectionMode="Single">
+            <!-- Mission List -->
+            <ListView Grid.Column="0"
+                      ItemsSource="{Binding UpcomingMissions}"
+                      SelectedItem="{Binding SelectedMission, Mode=TwoWay}"
+                      SelectionMode="Single"
+                      Margin="0,0,12,0">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="models:MissionPlan">
-                        <Grid Padding="12" ColumnSpacing="16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
+                        <Grid Padding="8">
                             <StackPanel>
-                                <TextBox Text="{Binding Name, Mode=TwoWay}" FontSize="18" FontWeight="SemiBold" BorderThickness="0" Background="Transparent" />
-                                <TextBox Text="{Binding MissionObjective, Mode=TwoWay}" TextWrapping="Wrap" BorderThickness="0" Background="Transparent" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding MissionObjective}" TextWrapping="Wrap" Foreground="Gray" FontSize="12" MaxLines="2"/>
+                                <TextBlock Foreground="Gray" FontSize="12">
+                                    <Run Text="Date:"/>
+                                    <Run Text="{Binding PlannedDate, Converter={StaticResource FormattingConverter}, ConverterParameter=d}"/>
+                                </TextBlock>
+                                <TextBlock Text="{Binding Status}" Foreground="DodgerBlue" FontSize="12"/>
                             </StackPanel>
-                            <StackPanel Grid.Column="1" HorizontalAlignment="Right" Spacing="4" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding PlannedDate, Converter={StaticResource FormattingConverter}, ConverterParameter='MMM d, yyyy'}" />
-                                <TextBlock Text="{Binding PlannedDate, Converter={StaticResource FormattingConverter}, ConverterParameter='HH:mm'}" />
-                            </StackPanel>
-                            <Button Grid.Column="2" Content="Delete" Command="{Binding DataContext.DeleteMissionCommand, ElementName=Page}" CommandParameter="{Binding}" VerticalAlignment="Center" />
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
+
+            <!-- Mission Details -->
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="16" Visibility="{Binding SelectedMission, Converter={StaticResource NullToVisibilityConverter}}">
+
+                    <!-- Basic Info -->
+                    <TextBlock Text="Mission Details" Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+                    <StackPanel Spacing="8">
+                        <TextBox Header="Mission Name" Text="{Binding SelectedMission.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox Header="Mission Objective" Text="{Binding SelectedMission.MissionObjective, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" AcceptsReturn="True" Height="80"/>
+                        <CalendarDatePicker Header="Planned Date" Date="{Binding SelectedMission.PlannedDate, Mode=TwoWay, Converter={StaticResource DateTimeToDateTimeOffsetConverter}}"/>
+
+                        <!-- Pilot Selection -->
+                        <ComboBox Header="Pilot"
+                                  ItemsSource="{Binding AvailablePilots}"
+                                  SelectedValue="{Binding SelectedMission.PilotId, Mode=TwoWay}"
+                                  SelectedValuePath="Id"
+                                  DisplayMemberPath="FullName"
+                                  PlaceholderText="Select a pilot"/>
+
+                        <!-- Aircraft Selection -->
+                        <ComboBox Header="Aircraft"
+                                  ItemsSource="{Binding AvailableAircraft}"
+                                  SelectedValue="{Binding SelectedMission.AircraftId, Mode=TwoWay}"
+                                  SelectedValuePath="Id"
+                                  DisplayMemberPath="Name"
+                                  PlaceholderText="Select an aircraft"/>
+
+                        <TextBox Header="Launch Location" Text="{Binding SelectedMission.LaunchLocation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox Header="Landing Location" Text="{Binding SelectedMission.LandingLocation, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <ComboBox Header="Status" SelectedItem="{Binding SelectedMission.Status, Mode=TwoWay}">
+                            <x:String>Draft</x:String>
+                            <x:String>PendingApproval</x:String>
+                            <x:String>Approved</x:String>
+                            <x:String>InProgress</x:String>
+                            <x:String>Completed</x:String>
+                            <x:String>Cancelled</x:String>
+                        </ComboBox>
+
+                        <ComboBox Header="Risk Level" SelectedItem="{Binding SelectedMission.RiskLevel, Mode=TwoWay}">
+                            <x:String>Low</x:String>
+                            <x:String>Medium</x:String>
+                            <x:String>High</x:String>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Actions -->
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,16,0,0">
+                        <Button Content="Save" Style="{StaticResource AccentButtonStyle}" Command="{Binding UpdateMissionCommand}" CommandParameter="{Binding SelectedMission}"/>
+                        <Button Content="Complete Mission" Command="{Binding CompleteMissionCommand}" CommandParameter="{Binding SelectedMission}"/>
+                        <Button Content="Delete" Command="{Binding DeleteMissionCommand}" CommandParameter="{Binding SelectedMission}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
         </Grid>
     </Grid>
 </Page>

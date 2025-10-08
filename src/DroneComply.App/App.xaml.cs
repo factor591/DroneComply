@@ -29,6 +29,8 @@ public partial class App : Application
 
     public IHost Host { get; }
 
+    public static Window? MainWindow { get; private set; }
+
     public static T GetService<T>() where T : class
     {
         if (((Application.Current as App)?.Host.Services.GetService(typeof(T))) is T service)
@@ -46,8 +48,8 @@ public partial class App : Application
         // Initialize database
         await InitializeDatabaseAsync();
 
-        var window = Host.Services.GetRequiredService<MainWindow>();
-        window.Activate();
+        MainWindow = Host.Services.GetRequiredService<MainWindow>();
+        MainWindow.Activate();
     }
 
     private async System.Threading.Tasks.Task InitializeDatabaseAsync()
@@ -93,6 +95,9 @@ public partial class App : Application
                 services.AddTransient<MaintenanceViewModel>();
                 services.AddTransient<WaiverViewModel>();
                 services.AddTransient<SettingsViewModel>();
+                services.AddTransient<PilotViewModel>();
+                services.AddTransient<AircraftViewModel>();
+                services.AddTransient<WeatherViewModel>();
 
                 services.AddSingleton<ShellPage>();
                 services.AddSingleton<MainWindow>();

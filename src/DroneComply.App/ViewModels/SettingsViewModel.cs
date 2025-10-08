@@ -9,6 +9,8 @@ namespace DroneComply.App.ViewModels;
 public partial class SettingsViewModel : ObservableRecipient
 {
     private readonly IConfiguration _configuration;
+    private string _aloftApiKeyEnvVar = string.Empty;
+    private string _googleMapsApiKeyEnvVar = string.Empty;
 
     [ObservableProperty]
     private string _databaseConnection = string.Empty;
@@ -25,6 +27,12 @@ public partial class SettingsViewModel : ObservableRecipient
     [ObservableProperty]
     private string _statusMessage = string.Empty;
 
+    [ObservableProperty]
+    private bool _isEditingAloft = false;
+
+    [ObservableProperty]
+    private bool _isEditingGoogleMaps = false;
+
     public SettingsViewModel(IConfiguration configuration)
     {
         _configuration = configuration;
@@ -38,24 +46,101 @@ public partial class SettingsViewModel : ObservableRecipient
     {
         DatabaseConnection = _configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
         FaaWeatherEndpoint = _configuration["ExternalAPIs:FAAWeatherAPI"] ?? string.Empty;
-        AloftApiKey = DescribeSecret("Secrets:ApiKeys:Aloft");
-        GoogleMapsApiKey = DescribeSecret("Secrets:ApiKeys:GoogleMaps");
 
-        StatusMessage = "Secrets are sourced from environment variables. Update appsettings.*.json to change bindings.";
+        _aloftApiKeyEnvVar = _configuration["Secrets:ApiKeys:Aloft"] ?? string.Empty;
+        _googleMapsApiKeyEnvVar = _configuration["Secrets:ApiKeys:GoogleMaps"] ?? string.Empty;
+
+        AloftApiKey = GetApiKeyValue(_aloftApiKeyEnvVar);
+        GoogleMapsApiKey = GetApiKeyValue(_googleMapsApiKeyEnvVar);
+
+        StatusMessage = "API keys are stored in environment variables.";
     }
 
-    private string DescribeSecret(string secretPath)
+    private string GetApiKeyValue(string envVarName)
     {
-        var envVariable = _configuration[secretPath];
-        if (string.IsNullOrWhiteSpace(envVariable))
+        if (string.IsNullOrWhiteSpace(envVarName))
         {
             return "Not configured";
         }
 
-        var isSet = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(envVariable));
-        return isSet
-            ? $"Environment variable '{envVariable}' is configured."
-            : $"Environment variable '{envVariable}' is not set.";
+        var value = Environment.GetEnvironmentVariable(envVarName);
+        return string.IsNullOrWhiteSpace(value) ? "Not set" : MaskApiKey(value);
+    }
+
+    private string MaskApiKey(string apiKey)
+    {
+        if (apiKey.Length <= 8)
+            return "****";
+
+        return apiKey.Substring(0, 4) + new string('*', apiKey.Length - 8) + apiKey.Substring(apiKey.Length - 4);
+    }
+
+    [RelayCommand]
+    private void EditAloftApiKey()
+    {
+        if (IsEditingAloft)
+        {
+            // Cancel edit
+            AloftApiKey = GetApiKeyValue(_aloftApiKeyEnvVar);
+            IsEditingAloft = false;
+        }
+        else
+        {
+            // Start editing - show actual value
+            var actualValue = Environment.GetEnvironmentVariable(_aloftApiKeyEnvVar) ?? string.Empty;
+            AloftApiKey = actualValue;
+            IsEditingAloft = true;
+        }
+    }
+
+    [RelayCommand]
+    private void SaveAloftApiKey()
+    {
+        try
+        {
+            Environment.SetEnvironmentVariable(_aloftApiKeyEnvVar, AloftApiKey, EnvironmentVariableTarget.User);
+            AloftApiKey = GetApiKeyValue(_aloftApiKeyEnvVar);
+            IsEditingAloft = false;
+            StatusMessage = "Aloft API key saved successfully.";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Failed to save API key: {ex.Message}";
+        }
+    }
+
+    [RelayCommand]
+    private void EditGoogleMapsApiKey()
+    {
+        if (IsEditingGoogleMaps)
+        {
+            // Cancel edit
+            GoogleMapsApiKey = GetApiKeyValue(_googleMapsApiKeyEnvVar);
+            IsEditingGoogleMaps = false;
+        }
+        else
+        {
+            // Start editing - show actual value
+            var actualValue = Environment.GetEnvironmentVariable(_googleMapsApiKeyEnvVar) ?? string.Empty;
+            GoogleMapsApiKey = actualValue;
+            IsEditingGoogleMaps = true;
+        }
+    }
+
+    [RelayCommand]
+    private void SaveGoogleMapsApiKey()
+    {
+        try
+        {
+            Environment.SetEnvironmentVariable(_googleMapsApiKeyEnvVar, GoogleMapsApiKey, EnvironmentVariableTarget.User);
+            GoogleMapsApiKey = GetApiKeyValue(_googleMapsApiKeyEnvVar);
+            IsEditingGoogleMaps = false;
+            StatusMessage = "Google Maps API key saved successfully.";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Failed to save API key: {ex.Message}";
+        }
     }
 
     private void CopyConnectionString()

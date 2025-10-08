@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DroneComply.Core.Interfaces;
 using DroneComply.Core.Models;
+using Microsoft.UI.Xaml.Controls;
 
 namespace DroneComply.App.ViewModels;
 
@@ -109,10 +110,24 @@ public partial class FlightLogViewModel : ObservableRecipient
 
     private async Task DeleteAsync()
     {
-        if (SelectedFlightLog is null)
+        if (SelectedFlightLog is null || App.MainWindow?.Content == null)
         {
             return;
         }
+
+        var dialog = new ContentDialog
+        {
+            Title = "Delete Flight Log",
+            Content = $"Are you sure you want to delete this flight log from {SelectedFlightLog.FlightDate:d}?",
+            PrimaryButtonText = "Delete",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = App.MainWindow.Content.XamlRoot
+        };
+
+        var result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary)
+            return;
 
         try
         {

@@ -1,4 +1,4 @@
-<Application
+﻿<Application
     x:Class="DroneComply.App.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -10,6 +10,13 @@
             </ResourceDictionary.MergedDictionaries>
 
             <converters:FormattingConverter x:Key="FormattingConverter" />
+            <converters:DateTimeToTimeSpanConverter x:Key="DateTimeToTimeSpanConverter" />
+            <converters:DateTimeToDateTimeOffsetConverter x:Key="DateTimeToDateTimeOffsetConverter" />
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+            <converters:BoolToStringConverter x:Key="BoolToStringConverter" />
 
             <!-- Missing WinUI resources -->
             <SolidColorBrush x:Key="TabViewButtonBackground" Color="Transparent" />

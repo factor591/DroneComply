@@ -5,21 +5,16 @@ using Microsoft.UI.Xaml.Navigation;
 
 namespace DroneComply.App.Views;
 
-public sealed partial class DashboardPage : Page
+public sealed partial class WeatherPage : Page
 {
-    public DashboardPage()
-        : this(App.GetService<DashboardViewModel>())
-    {
-    }
+    public WeatherViewModel ViewModel { get; }
 
-    public DashboardPage(DashboardViewModel viewModel)
+    public WeatherPage()
     {
+        ViewModel = App.GetService<WeatherViewModel>();
         InitializeComponent();
-        ViewModel = viewModel;
         DataContext = ViewModel;
     }
-
-    public DashboardViewModel ViewModel { get; }
 
     protected override async void OnNavigatedTo(NavigationEventArgs e)
     {

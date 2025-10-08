@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="DroneComply.App.Views.AircraftPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:DroneComply.Core.Models"
+    xmlns:enums="using:DroneComply.Core.Enums"
+    mc:Ignorable="d">
+
+    <Grid Padding="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <TextBlock Grid.Row="0" Text="Aircraft Management" Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,16"/>
+
+        <!-- Toolbar -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
+            <Button Content="Add Aircraft" Command="{Binding AddAircraftCommand}"/>
+            <TextBox PlaceholderText="Search aircraft..." Width="250" Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <Button Content="Search" Command="{Binding SearchAircraftCommand}"/>
+            <TextBlock Text="{Binding StatusMessage, Mode=OneWay}" VerticalAlignment="Center" Foreground="Gray"/>
+        </StackPanel>
+
+        <!-- Content -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="350"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Aircraft List -->
+            <ListView Grid.Column="0"
+                      ItemsSource="{Binding Aircraft, Mode=OneWay}"
+                      SelectedItem="{Binding SelectedAircraft, Mode=TwoWay}"
+                      SelectionMode="Single"
+                      Margin="0,0,12,0">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Aircraft">
+                        <Grid Padding="8">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                <TextBlock Foreground="Gray" FontSize="12">
+                                    <Run Text="{Binding Manufacturer}"/>
+                                    <Run Text="{Binding Model}"/>
+                                </TextBlock>
+                                <TextBlock Text="{Binding Status}" Foreground="Gray" FontSize="12"/>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <!-- Aircraft Details -->
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="16" Visibility="{Binding SelectedAircraft, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+
+                    <!-- Basic Info -->
+                    <TextBlock Text="Aircraft Details" Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+                    <StackPanel Spacing="8">
+                        <TextBox Header="Name" Text="{Binding SelectedAircraft.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox Header="Manufacturer" Text="{Binding SelectedAircraft.Manufacturer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox Header="Model" Text="{Binding SelectedAircraft.Model, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox Header="Serial Number" Text="{Binding SelectedAircraft.SerialNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <ComboBox Header="Type"
+                                 ItemsSource="{Binding AircraftTypes, Mode=OneWay}"
+                                 SelectedItem="{Binding SelectedAircraft.Type, Mode=TwoWay}"/>
+                        <ComboBox Header="Status"
+                                 ItemsSource="{Binding AircraftStatuses, Mode=OneWay}"
+                                 SelectedItem="{Binding SelectedAircraft.Status, Mode=TwoWay}"/>
+                        <NumberBox Header="Max Takeoff Weight (kg)" Value="{Binding SelectedAircraft.MaxTakeoffWeightKg, Mode=TwoWay}" SpinButtonPlacementMode="Compact"/>
+                        <NumberBox Header="Max Flight Time (minutes)" Value="{Binding SelectedAircraft.MaxFlightTimeMinutes, Mode=TwoWay}" SpinButtonPlacementMode="Compact"/>
+                        <CalendarDatePicker Header="Commissioned On" Date="{Binding SelectedAircraft.CommissionedOn, Mode=TwoWay, Converter={StaticResource DateTimeToDateTimeOffsetConverter}}"/>
+                    </StackPanel>
+
+                    <!-- Equipment -->
+                    <TextBlock Text="Equipment" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,16,0,0"/>
+                    <Button Content="Add Equipment" Command="{Binding AddEquipmentCommand}" CommandParameter="{Binding SelectedAircraft, Mode=OneWay}"/>
+
+                    <ItemsRepeater ItemsSource="{Binding SelectedAircraft.Equipment, Mode=OneWay}">
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="models:AircraftEquipment">
+                                <Border BorderBrush="Gray" BorderThickness="1" Padding="12" Margin="0,4" CornerRadius="4">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                        <TextBlock>
+                                            <Run Text="{Binding Manufacturer}"/>
+                                            <Run Text="-"/>
+                                            <Run Text="{Binding Version}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding InstalledOn, Converter={StaticResource FormattingConverter}, ConverterParameter=d}" Foreground="Gray" FontSize="12"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+
+                    <!-- Actions -->
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,16,0,0">
+                        <Button Content="Edit" Command="{Binding EditAircraftCommand}" CommandParameter="{Binding SelectedAircraft, Mode=OneWay}" Visibility="{Binding IsEditing, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                        <Button Content="Save" Style="{StaticResource AccentButtonStyle}" Command="{Binding SaveAircraftCommand}" CommandParameter="{Binding SelectedAircraft, Mode=OneWay}" Visibility="{Binding IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <Button Content="Cancel" Command="{Binding CancelEditCommand}" Visibility="{Binding IsEditing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <Button Content="Delete" Command="{Binding DeleteAircraftCommand}" CommandParameter="{Binding SelectedAircraft, Mode=OneWay}"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Page>
+
+
+
+
+
+
+

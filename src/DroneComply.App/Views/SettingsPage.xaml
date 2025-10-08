@@ -6,31 +6,55 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
     <ScrollViewer Padding="24">
-        <StackPanel Spacing="16">
-            <TextBlock Text="Settings" FontSize="24" FontWeight="SemiBold" />
+        <StackPanel Spacing="16" MaxWidth="800">
+            <TextBlock Text="Settings" Style="{StaticResource TitleTextBlockStyle}" />
 
-            <StackPanel>
+            <StackPanel Spacing="8">
                 <TextBlock Text="Database Connection" FontWeight="SemiBold" />
                 <TextBox Text="{Binding DatabaseConnection}" IsReadOnly="True" TextWrapping="Wrap" />
-                <Button Content="Copy" Command="{Binding CopyConnectionStringCommand}" Width="120" />
+                <Button Content="Copy" Command="{Binding CopyConnectionStringCommand}" Width="120" HorizontalAlignment="Left" />
             </StackPanel>
 
-            <StackPanel>
+            <StackPanel Spacing="8">
                 <TextBlock Text="FAA Weather Endpoint" FontWeight="SemiBold" />
                 <TextBox Text="{Binding FaaWeatherEndpoint}" IsReadOnly="True" TextWrapping="Wrap" />
             </StackPanel>
 
-            <StackPanel>
+            <StackPanel Spacing="8">
                 <TextBlock Text="Aloft API Key" FontWeight="SemiBold" />
-                <TextBox Text="{Binding AloftApiKey}" IsReadOnly="True" TextWrapping="Wrap" />
+                <TextBox Text="{Binding AloftApiKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         IsReadOnly="{Binding IsEditingAloft, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                         TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Content="{Binding IsEditingAloft, Mode=OneWay, Converter={StaticResource BoolToStringConverter}, ConverterParameter='Cancel|Edit'}"
+                            Command="{Binding EditAloftApiKeyCommand}"
+                            Width="120" />
+                    <Button Content="Save"
+                            Command="{Binding SaveAloftApiKeyCommand}"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Width="120"
+                            Visibility="{Binding IsEditingAloft, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                </StackPanel>
             </StackPanel>
 
-            <StackPanel>
+            <StackPanel Spacing="8">
                 <TextBlock Text="Google Maps API Key" FontWeight="SemiBold" />
-                <TextBox Text="{Binding GoogleMapsApiKey}" IsReadOnly="True" TextWrapping="Wrap" />
+                <TextBox Text="{Binding GoogleMapsApiKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         IsReadOnly="{Binding IsEditingGoogleMaps, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                         TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Content="{Binding IsEditingGoogleMaps, Mode=OneWay, Converter={StaticResource BoolToStringConverter}, ConverterParameter='Cancel|Edit'}"
+                            Command="{Binding EditGoogleMapsApiKeyCommand}"
+                            Width="120" />
+                    <Button Content="Save"
+                            Command="{Binding SaveGoogleMapsApiKeyCommand}"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Width="120"
+                            Visibility="{Binding IsEditingGoogleMaps, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                </StackPanel>
             </StackPanel>
 
-            <TextBlock Text="{Binding StatusMessage}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding StatusMessage}" Foreground="Gray" TextWrapping="Wrap" Margin="0,16,0,0" />
         </StackPanel>
     </ScrollViewer>
 </Page>

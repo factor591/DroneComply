@@ -41,6 +41,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMissionPlanRepository, MissionPlanRepository>();
         services.AddScoped<IFlightLogRepository, FlightLogRepository>();
         services.AddScoped<IMaintenanceRepository, MaintenanceRepository>();
+        services.AddScoped<IPilotRepository, PilotRepository>();
+        services.AddScoped<IAircraftRepository, AircraftRepository>();
         services.AddScoped<IDbSeeder, DbSeeder>();
 
         return services;

@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DroneComply.Core.Enums;
 using DroneComply.Core.Interfaces;
 using DroneComply.Core.Models;
 
@@ -10,12 +11,16 @@ public partial class MaintenanceViewModel : ObservableRecipient
 {
     private readonly IMaintenanceRepository _maintenanceRepository;
     private readonly IMaintenanceService _maintenanceService;
+    private readonly IAircraftRepository _aircraftRepository;
+
+    [ObservableProperty]
+    private ObservableCollection<Aircraft> _aircraft = new();
+
+    [ObservableProperty]
+    private Aircraft? _selectedAircraft;
 
     [ObservableProperty]
     private ObservableCollection<MaintenanceRecord> _maintenanceRecords = new();
-
-    [ObservableProperty]
-    private string _aircraftFilter = string.Empty;
 
     [ObservableProperty]
     private MaintenanceRecord? _selectedRecord;
@@ -26,13 +31,25 @@ public partial class MaintenanceViewModel : ObservableRecipient
     [ObservableProperty]
     private bool _isBusy;
 
-    public MaintenanceViewModel(IMaintenanceRepository maintenanceRepository, IMaintenanceService maintenanceService)
+    public MaintenanceViewModel(
+        IMaintenanceRepository maintenanceRepository,
+        IMaintenanceService maintenanceService,
+        IAircraftRepository aircraftRepository)
     {
         _maintenanceRepository = maintenanceRepository;
         _maintenanceService = maintenanceService;
+        _aircraftRepository = aircraftRepository;
 
         LoadCommand = new AsyncRelayCommand(LoadAsync);
         CompleteTaskCommand = new AsyncRelayCommand<MaintenanceTask?>(CompleteTaskAsync);
+    }
+
+    partial void OnSelectedAircraftChanged(Aircraft? value)
+    {
+        if (value != null)
+        {
+            _ = LoadMaintenanceForAircraftAsync();
+        }
     }
 
     public IAsyncRelayCommand LoadCommand { get; }
@@ -43,17 +60,34 @@ public partial class MaintenanceViewModel : ObservableRecipient
         try
         {
             IsBusy = true;
+
+            var aircraftList = await _aircraftRepository.ListAsync();
+            Aircraft = new ObservableCollection<Aircraft>(aircraftList);
+
+            StatusMessage = aircraftList.Count == 0
+                ? "No aircraft found."
+                : $"{aircraftList.Count} aircraft loaded.";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Failed to load aircraft: {ex.Message}";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task LoadMaintenanceForAircraftAsync()
+    {
+        if (SelectedAircraft == null) return;
+
+        try
+        {
+            IsBusy = true;
             MaintenanceRecords.Clear();
 
-            IReadOnlyList<MaintenanceRecord> records;
-            if (Guid.TryParse(AircraftFilter, out var aircraftId))
-            {
-                records = await _maintenanceRepository.GetOutstandingAsync(aircraftId);
-            }
-            else
-            {
-                records = await _maintenanceRepository.ListAsync();
-            }
+            var records = await _maintenanceRepository.GetOutstandingAsync(SelectedAircraft.Id);
 
             foreach (var record in records)
             {
@@ -62,7 +96,11 @@ public partial class MaintenanceViewModel : ObservableRecipient
 
             if (MaintenanceRecords.Count == 0)
             {
-                StatusMessage = "No maintenance items due.";
+                StatusMessage = $"No maintenance records for {SelectedAircraft.Name}.";
+            }
+            else
+            {
+                StatusMessage = $"Loaded {MaintenanceRecords.Count} maintenance record(s).";
             }
         }
         catch (Exception ex)
@@ -72,6 +110,51 @@ public partial class MaintenanceViewModel : ObservableRecipient
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task AddMaintenanceRecordAsync()
+    {
+        if (SelectedAircraft == null) return;
+
+        try
+        {
+            var newRecord = new MaintenanceRecord
+            {
+                Id = Guid.NewGuid(),
+                AircraftId = SelectedAircraft.Id,
+                Type = MaintenanceType.Scheduled,
+                Status = MaintenanceStatus.Scheduled,
+                ScheduledDate = DateTime.Now,
+                Description = "New Maintenance Record",
+                Notes = string.Empty
+            };
+
+            await _maintenanceRepository.AddAsync(newRecord);
+            MaintenanceRecords.Add(newRecord);
+            SelectedRecord = newRecord;
+            StatusMessage = "New maintenance record created.";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Failed to add maintenance record: {ex.Message}";
+        }
+    }
+
+    [RelayCommand]
+    private async Task SaveMaintenanceRecordAsync(MaintenanceRecord? record)
+    {
+        if (record == null) return;
+
+        try
+        {
+            await _maintenanceRepository.UpdateAsync(record);
+            StatusMessage = "Maintenance record saved.";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Failed to save maintenance record: {ex.Message}";
         }
     }
 

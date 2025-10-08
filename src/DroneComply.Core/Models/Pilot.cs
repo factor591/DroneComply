@@ -10,6 +10,7 @@ public class Pilot
     public string CertificateNumber { get; set; } = string.Empty;
     public DateTime CertificationDate { get; set; } = DateTime.UtcNow;
     public DateTime? RecurrentTrainingDue { get; set; }
+    public bool IsActive { get; set; } = true;
     public List<PilotCertification> Certifications { get; set; } = new();
     public List<PilotCredential> Credentials { get; set; } = new();
 

@@ -12,6 +12,8 @@ public partial class ShellViewModel : ObservableObject
             new("Missions", "\uE8F4", typeof(DashboardPage)),
             new("Pre-Flight", "\uE709", typeof(PreFlightPage)),
             new("Flight Logs", "\uE81E", typeof(FlightLogPage)),
+            new("Pilots", "\uE77B", typeof(PilotPage)),
+            new("Aircraft", "\uE709", typeof(AircraftPage)),
             new("Maintenance", "\uE90F", typeof(MaintenancePage)),
             new("Waivers", "\uE8B8", typeof(WaiverPage))
         };
