@@ -39,6 +39,7 @@ artifacts/
 
 # Local config
 appsettings.local.json
+.claude/settings.local.json
 
 # Test results
 TestResults/
